@@ -56,6 +56,7 @@ resource "azurerm_virtual_desktop_workspace_application_group_association" "work
   workspace_id         = module.workspace.resource.id
 }
 
+// TODO: This causes the token to change on every run?
 resource "azurerm_virtual_desktop_host_pool_registration_info" "registrationInfo" {
   hostpool_id = module.hostpool.resource.id
   # Generating RFC3339Time for the expiration of the token. 
