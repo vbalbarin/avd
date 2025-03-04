@@ -57,6 +57,8 @@ module "avd_vm" {
   managed_identities = {
     # Required for Entra join
     system_assigned = true
+    # For script download from blob
+    user_assigned_resource_ids = [module.uami.resource.id]
   }
 
   network_interfaces = {
@@ -75,6 +77,7 @@ module "avd_vm" {
   license_type = "Windows_Client"
 
   extensions = {
+    # TODO: Extension names don't need the VM name in them
     # 1. Entra join the VM
     EntraJoin = {
       name                       = "${local.vm_name}${count.index + 1}-EntraJoin"
@@ -111,9 +114,29 @@ module "avd_vm" {
       })
 
       deploy_sequence = 2
+    },
+    # 3+. FSLogix customization
+    FSLogixConfig = {
+      name = "${local.vm_name}${count.index + 1}-FSLogix"
+      # Use the custom script extension to configure FSLogix
+      publisher                  = "Microsoft.Compute"
+      type                       = "CustomScriptExtension"
+      type_handler_version       = "1.10"
+      auto_upgrade_minor_version = true
+
+      protected_settings = jsonencode({
+        commandToExecute = "powershell -ExecutionPolicy Unrestricted -File FSLogix.ps1 -StorageAccountConnectionString 'DefaultEndpointsProtocol=https;AccountName=${module.storage.resource.name};AccountKey=${module.storage.resource.primary_access_key}'"
+      })
+
+      settings = jsonencode({
+        fileUris = [
+          azurerm_storage_blob.fslogix_script.url
+        ]
+        managedIdentity = {
+          objectId = module.uami.resource.principal_id
+        }
+      })
     }
-    # TODO: 3+ FSLogix customization
-    # TODO: 3+ AMA?
   }
 }
 
