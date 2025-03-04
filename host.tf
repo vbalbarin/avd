@@ -125,12 +125,14 @@ module "avd_vm" {
       auto_upgrade_minor_version = true
 
       protected_settings = jsonencode({
-        commandToExecute = "powershell -ExecutionPolicy Unrestricted -File FSLogix.ps1 -StorageAccountConnectionString 'DefaultEndpointsProtocol=https;AccountName=${module.storage.resource.name};AccountKey=${module.storage.resource.primary_access_key}'"
+        commandToExecute = "powershell -ExecutionPolicy Unrestricted -File Set-FSLogixConfiguration.ps1 -StorageAccountConnectionString 'DefaultEndpointsProtocol=https;AccountName=${module.storage.resource.name};AccountKey=${module.storage.resource.primary_access_key}'"
       })
 
       settings = jsonencode({
         fileUris = [
           azurerm_storage_blob.fslogix_script.url
+          # Alternate location
+          #"https://gist.githubusercontent.com/SvenAelterman/dcc5a5df64f3dfe6bfa51efd33de45f5/raw/fabc89c14adb44ec36472574b09e1615332089aa/Set-FSLogixConfiguration.ps1"
         ]
         managedIdentity = {
           objectId = module.uami.resource.principal_id
