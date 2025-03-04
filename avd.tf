@@ -55,3 +55,9 @@ resource "azurerm_virtual_desktop_workspace_application_group_association" "work
   application_group_id = module.appgroup.resource.id
   workspace_id         = module.workspace.resource.id
 }
+
+resource "azurerm_virtual_desktop_host_pool_registration_info" "registrationInfo" {
+  hostpool_id = module.hostpool.resource.id
+  # Generating RFC3339Time for the expiration of the token. 
+  expiration_date = timeadd(timestamp(), "48h")
+}
