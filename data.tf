@@ -13,3 +13,13 @@ data "azurerm_subnet" "subnet" {
   virtual_network_name = local.vnet
   provider             = azurerm.spoke
 }
+
+data "azurerm_client_config" "current" {}
+
+data "azurerm_role_definition" "rbac_storage_blob_data_reader" {
+  name = "Storage Blob Data Reader"
+}
+
+data "http" "runner_ip" {
+  url = "https://ipecho.net/plain"
+}
