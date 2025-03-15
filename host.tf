@@ -19,8 +19,8 @@ module "avd_vm" {
   source = "Azure/avm-res-compute-virtualmachine/azurerm"
 
   name                = "${local.vm_name}${count.index + 1}"
-  resource_group_name = azurerm_resource_group.sessionhost_rg.name
-  location            = azurerm_resource_group.sessionhost_rg.location
+  resource_group_name = module.sessionhost_rg.resource.name
+  location            = module.sessionhost_rg.resource.location
   version             = "0.18.0"
   provision_vm_agent  = true
 
@@ -145,8 +145,8 @@ module "avd_vm" {
 # Availability Set for VMs
 resource "azurerm_availability_set" "avdset" {
   name                         = "avail-${var.org}-avd-sh-${var.env}-${local.reg}-01"
-  resource_group_name          = azurerm_resource_group.sessionhost_rg.name
-  location                     = azurerm_resource_group.sessionhost_rg.location
+  resource_group_name          = module.sessionhost_rg.resource.name
+  location                     = module.sessionhost_rg.resource.location
   platform_fault_domain_count  = 2
   platform_update_domain_count = 5
   managed                      = true
