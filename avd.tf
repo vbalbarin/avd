@@ -37,6 +37,12 @@ module "appgroup" {
   virtual_desktop_application_group_resource_group_name          = azurerm_resource_group.avd_rg.name
   virtual_desktop_application_group_name                         = "vdag-${var.org}-${var.env}-${local.reg}-01"
   virtual_desktop_application_group_type                         = "Desktop"
+
+  # Perform "Desktop Virtualization User" role assignment for all identities (users and admins)
+  role_assignments = { for i, oid in local.all_identities : i => {
+    principal_id               = oid
+    role_definition_id_or_name = "Desktop Virtualization User"
+  } }
 }
 
 module "workspace" {

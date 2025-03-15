@@ -61,6 +61,18 @@ variable "enroll_in_intune" {
   type    = bool
 }
 
+variable "user_assignments" {
+  default     = []
+  type        = list(string)
+  description = "The Entra ID object IDs of the users or groups that should be assigned to the Desktop Application Group. These identities will also be assigned the Virtual Machine User Login role on the session host resource group."
+}
+
+variable "admin_assignments" {
+  default     = []
+  type        = list(string)
+  description = "The Entra ID object IDs of the users or groups that should be assigned the Virtual Machine Administrator role on the session host resource group. They will also be assigned to the Desktop Application Group."
+}
+
 variable "az_region_abbreviations" {
   type = map(string)
   default = {
