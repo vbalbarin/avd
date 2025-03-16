@@ -87,6 +87,6 @@ resource "azurerm_storage_blob" "fslogix_script" {
   storage_account_name   = module.storage.name
   storage_container_name = local.container_name
   type                   = "Block"
-  source                 = "scripts/FSLogix/0.1.0/Set-FSLogixConfiguration.ps1"
+  source                 = "scripts/FSLogix/1.0.0/Set-FSLogixConfiguration.ps1"
   content_type           = "application/x-powershell"
 }
