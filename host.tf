@@ -125,7 +125,7 @@ module "avd_vm" {
       auto_upgrade_minor_version = true
 
       protected_settings = jsonencode({
-        commandToExecute = "powershell -ExecutionPolicy Unrestricted -File Set-FSLogixConfiguration.ps1 -StorageAccountConnectionString 'DefaultEndpointsProtocol=https;AccountName=${module.storage.resource.name};AccountKey=${module.storage.resource.primary_access_key}'"
+        commandToExecute = "powershell -ExecutionPolicy Unrestricted -File Set-FSLogixConfiguration.ps1 -StorageAccountConnectionString DefaultEndpointsProtocol=https;AccountName=${module.storage.resource.name};AccountKey=${module.storage.resource.primary_access_key}"
       })
 
       settings = jsonencode({
