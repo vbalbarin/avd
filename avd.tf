@@ -12,6 +12,7 @@ module "hostpool" {
   virtual_desktop_host_pool_load_balancer_type       = "DepthFirst"
   virtual_desktop_host_pool_maximum_sessions_allowed = 2
 
+  virtual_desktop_host_pool_custom_rdp_properties = "targetisaadjoined:i:1"
   #virtual_desktop_host_pool_custom_rdp_properties    = var.virtual_desktop_host_pool_custom_rdp_properties
   #virtual_desktop_host_pool_start_vm_on_connect      = var.virtual_desktop_host_pool_start_vm_on_connect
 
