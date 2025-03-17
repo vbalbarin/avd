@@ -27,7 +27,7 @@ variable "env" {
   type    = string
   validation {
     condition     = contains(["prod", "prd", "stage", "stg", "devel", "dev", "test", "tst", "demo", "dem"], var.env)
-    error_message = "Invalid environment"
+    error_message = "Invalid environment, please use one of: prod, prd, stage, stg, devel, dev, test, tst, demo, or dem."
   }
 }
 
@@ -63,6 +63,26 @@ variable "vm_name_prefix" {
     condition     = length(var.vm_name_prefix) <= local.vm_name_prefix_max_length
     error_message = "The VM name prefix must be ${local.vm_name_prefix_max_length} characters or less."
   }
+}
+
+variable "session_host_admin_username" {
+  default = "srvadmin"
+  type    = string
+}
+
+variable "session_host_source_image_reference" {
+  default = {
+    publisher = "MicrosoftWindowsDesktop"
+    offer     = "office-365"
+    sku       = "win11-24h2-avd-m365"
+    version   = "latest"
+  }
+  type = map(string)
+}
+
+variable "session_host_sku_size" {
+  default = "Standard_D2as_v5"
+  type    = string
 }
 
 variable "encryption_at_host_enabled" {

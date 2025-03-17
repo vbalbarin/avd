@@ -16,12 +16,12 @@ module "avd_vm" {
   availability_set_resource_id = var.rdsh_count == 0 ? "" : azurerm_availability_set.avdset.id
 
   admin_credential_key_vault_resource_id = module.keyVault.resource_id
-  admin_username                         = "srvadmin"
+  admin_username                         = var.session_host_admin_username
   generate_admin_password_or_ssh_key     = true
 
   generated_secrets_key_vault_secret_config = {
     key_vault_resource_id = module.keyVault.resource_id
-    name                  = "vm-avd-sh-${count.index + 1}-password"
+    name                  = "${local.vm_name}${count.index + 1}-password"
   }
 
   enable_telemetry = var.telemetry_enabled
@@ -29,19 +29,14 @@ module "avd_vm" {
   os_type = "Windows"
   zone    = null
 
-  sku_size = "Standard_D2as_v5"
+  sku_size = var.session_host_sku_size
 
   secure_boot_enabled = true
   vtpm_enabled        = true
 
   encryption_at_host_enabled = var.encryption_at_host_enabled
 
-  source_image_reference = {
-    publisher = "MicrosoftWindowsDesktop"
-    offer     = "office-365"
-    sku       = "win11-24h2-avd-m365"
-    version   = "latest"
-  }
+  source_image_reference = var.session_host_source_image_reference
 
   managed_identities = {
     # Required for Entra join
