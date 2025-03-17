@@ -1,3 +1,14 @@
 {
-  "cSpell.words": ["fslogix", "hostpool", "vdpool", "virtualmachine", "vtpm"]
+  "cSpell.words": [
+    "applicationgroup",
+    "desktopvirtualization",
+    "fslogix",
+    "hostpool",
+    "targetisaadjoined",
+    "vdag",
+    "vdpool",
+    "vdws",
+    "virtualmachine",
+    "vtpm"
+  ]
 }
