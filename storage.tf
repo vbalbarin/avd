@@ -64,20 +64,6 @@ module "storage" {
     }
   }
 
-  #   shares = {
-  #     FSLogix = {
-  #       name  = "userprofiles"
-  #       quota = 10
-  #       # TODO: Add role assignments to FSLogix user profile share
-  #       #   role_assignments = {
-  #       #     rbac_storage_share_data_reader = {
-  #       #       role_definition_id_or_name = "Storage File Data SMB Share Reader"
-  #       #       principal_id               = data.azurerm_client_config.current.object_id
-  #       #     }
-  #       #   }
-  #     }
-  #   }
-
   enable_telemetry = var.telemetry_enabled
 }
 
