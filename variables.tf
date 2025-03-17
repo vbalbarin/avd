@@ -51,6 +51,20 @@ variable "rdsh_count" {
   type    = number
 }
 
+locals {
+  # AVD restriction is 11 characters, but ours could be longer
+  vm_name_prefix_max_length = 11
+}
+
+variable "vm_name_prefix" {
+  default = "vm-avd-sh-"
+  type    = string
+  validation {
+    condition     = length(var.vm_name_prefix) <= local.vm_name_prefix_max_length
+    error_message = "The VM name prefix must be ${local.vm_name_prefix_max_length} characters or less."
+  }
+}
+
 variable "encryption_at_host_enabled" {
   default = false
   type    = bool

@@ -1,51 +1,40 @@
-# resource "time_rotating" "avd_token" {
-#   rotation_days = 1
-# }
-
-# resource "random_string" "AVD_local_password" {
-#   #count            = var.rdsh_count
-#   length           = 16
-#   special          = true
-#   min_special      = 2
-#   override_special = "*!@#?"
-# }
-
 locals {
-  vm_name = "vm-avd-sh-"
+  vm_name = var.vm_name_prefix
 }
 
 module "avd_vm" {
-  count  = var.rdsh_count
-  source = "Azure/avm-res-compute-virtualmachine/azurerm"
+  count   = var.rdsh_count
+  source  = "Azure/avm-res-compute-virtualmachine/azurerm"
+  version = "0.18.1"
 
   name                = "${local.vm_name}${count.index + 1}"
   resource_group_name = module.sessionhost_rg.resource.name
   location            = module.sessionhost_rg.resource.location
-  version             = "0.18.0"
   provision_vm_agent  = true
 
   # Not sure why this condition is here?
   availability_set_resource_id = var.rdsh_count == 0 ? "" : azurerm_availability_set.avdset.id
 
-  // TODO: Use Key Vault
-  admin_password = "Password1234!"
-  // admin_credential_key_vault_resource_id = module.avm_res_keyvault_vault.resource_id
-  admin_username = "srvadmin"
+  admin_credential_key_vault_resource_id = module.keyVault.resource_id
+  admin_username                         = "srvadmin"
+  generate_admin_password_or_ssh_key     = true
 
-  enable_telemetry                   = var.telemetry_enabled
-  generate_admin_password_or_ssh_key = false
+  generated_secrets_key_vault_secret_config = {
+    key_vault_resource_id = module.keyVault.resource_id
+    name                  = "vm-avd-sh-${count.index + 1}-password"
+  }
+
+  enable_telemetry = var.telemetry_enabled
 
   os_type = "Windows"
   zone    = null
 
   sku_size = "Standard_D2as_v5"
 
-  encryption_at_host_enabled = var.encryption_at_host_enabled
+  secure_boot_enabled = true
+  vtpm_enabled        = true
 
-  // TODO: Re-enable?
-  #   generated_secrets_key_vault_secret_config = {
-  #     key_vault_resource_id = module.avm_res_keyvault_vault.resource_id
-  #   }
+  encryption_at_host_enabled = var.encryption_at_host_enabled
 
   source_image_reference = {
     publisher = "MicrosoftWindowsDesktop"
@@ -62,7 +51,7 @@ module "avd_vm" {
   }
 
   network_interfaces = {
-    "network_interface_${count.index + 1}" = {
+    "network_interface_1" = {
       name = "${local.vm_name}${count.index + 1}_nic"
       ip_configurations = {
         ipconfig_1 = {
@@ -77,10 +66,9 @@ module "avd_vm" {
   license_type = "Windows_Client"
 
   extensions = {
-    # TODO: Extension names don't need the VM name in them
     # 1. Entra join the VM
     EntraJoin = {
-      name                       = "${local.vm_name}${count.index + 1}-EntraJoin"
+      name                       = "EntraJoin"
       publisher                  = "Microsoft.Azure.ActiveDirectory"
       type                       = "AADLoginForWindows"
       type_handler_version       = "2.2"
@@ -94,7 +82,7 @@ module "avd_vm" {
     },
     # 2. Install the AVD agent, join to host pool
     AVD = {
-      name                       = "${local.vm_name}${count.index + 1}-AVD"
+      name                       = "SessionHostConfiguration"
       publisher                  = "Microsoft.PowerShell"
       type                       = "DSC"
       type_handler_version       = "2.83"
@@ -117,7 +105,7 @@ module "avd_vm" {
     },
     # 3+. FSLogix customization
     FSLogixConfig = {
-      name = "${local.vm_name}${count.index + 1}-FSLogix"
+      name = "FSLogixConfiguration"
       # Use the custom script extension to configure FSLogix
       publisher                  = "Microsoft.Compute"
       type                       = "CustomScriptExtension"
