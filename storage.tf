@@ -7,7 +7,8 @@ module "st_naming" {
 }
 
 locals {
-  container_name = "fslogix-script"
+  container_name           = "fslogix-script"
+  powerstig_container_name = "powerstig-scripts"
 }
 module "storage" {
   source = "Azure/avm-res-storage-storageaccount/azurerm"
@@ -26,16 +27,6 @@ module "storage" {
 
   # TODO: Default to true
   infrastructure_encryption_enabled = false
-
-  #   azure_files_authentication = {
-  #     directory_type                 = "AADKERB"
-  #     default_share_level_permission = "StorageFileDataSmbShareContributor"
-  #   }
-
-  #   managed_identities = {
-  #     system_assigned            = true
-  #     user_assigned_resource_ids = [azurerm_user_assigned_identity.example_identity.id]
-  #   }
 
   role_assignments = {
     uami = {
@@ -62,6 +53,9 @@ module "storage" {
     FSLogixScript = {
       name = local.container_name
     }
+    PowerSTIGSCript = {
+      name = local.powerstig_container_name
+    }
   }
 
   enable_telemetry = var.telemetry_enabled
@@ -75,4 +69,41 @@ resource "azurerm_storage_blob" "fslogix_script" {
   type                   = "Block"
   source                 = "scripts/FSLogix/1.0.0/Set-FSLogixConfiguration.ps1"
   content_type           = "application/x-powershell"
+}
+
+# Upload the PowerSTIG scripts to the blob container
+resource "azurerm_storage_blob" "powerstig_script_RequiredModules" {
+  name                   = "RequiredModules.ps1"
+  storage_account_name   = module.storage.name
+  storage_container_name = local.powerstig_container_name
+  type                   = "Block"
+  source                 = "scripts/PowerSTIG/0.0.1/RequiredModules.ps1"
+  content_type           = "application/x-powershell"
+}
+
+resource "azurerm_storage_blob" "powerstig_script_GenerateStigChecklist" {
+  name                   = "GenerateStigChecklist.ps1"
+  storage_account_name   = module.storage.name
+  storage_container_name = local.powerstig_container_name
+  type                   = "Block"
+  source                 = "scripts/PowerSTIG/0.0.1/GenerateStigChecklist.ps1"
+  content_type           = "application/x-powershell"
+}
+
+resource "azurerm_storage_blob" "powerstig_script_InstallModules" {
+  name                   = "InstallModules.ps1"
+  storage_account_name   = module.storage.name
+  storage_container_name = local.powerstig_container_name
+  type                   = "Block"
+  source                 = "scripts/PowerSTIG/0.0.1/InstallModules.ps1"
+  content_type           = "application/x-powershell"
+}
+
+resource "azurerm_storage_blob" "powerstig_dsc_zip" {
+  name                   = "Windows.ps1.zip"
+  storage_account_name   = module.storage.name
+  storage_container_name = local.powerstig_container_name
+  type                   = "Block"
+  source                 = "scripts/PowerSTIG/0.0.1/Windows.ps1.zip"
+  content_type           = "application/x-zip-compressed"
 }

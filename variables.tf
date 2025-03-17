@@ -12,6 +12,11 @@ variable "telemetry_enabled" {
   type    = bool
 }
 
+variable "powerstig_enabled" {
+  default = false
+  type    = bool
+}
+
 variable "org" {
   default = "contoso"
   type    = string

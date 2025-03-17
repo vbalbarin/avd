@@ -125,6 +125,56 @@ module "avd_vm" {
   }
 }
 
+# Add two more custom script extensions to configure PowerSTIG, if needed
+resource "azurerm_virtual_machine_extension" "powerstig_prep" {
+  count                      = var.powerstig_enabled ? var.rdsh_count : 0
+  name                       = "PowerSTIG-Prep"
+  virtual_machine_id         = module.avd_vm[count.index].resource_id
+  publisher                  = "Microsoft.Compute"
+  type                       = "CustomScriptExtension"
+  type_handler_version       = "1.10"
+  auto_upgrade_minor_version = true
+
+  protected_settings = jsonencode({
+    commandToExecute = "powershell -ExecutionPolicy Unrestricted -File InstallModules.ps1 -autoInstallDependencies $true"
+  })
+
+  settings = jsonencode({
+    fileUris = [
+      azurerm_storage_blob.powerstig_script_RequiredModules.url,
+      azurerm_storage_blob.powerstig_script_GenerateStigChecklist.url,
+      azurerm_storage_blob.powerstig_script_InstallModules.url
+      # Alternate locations (unmodified)
+      # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/GenerateStigChecklist.ps1,
+      # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/InstallModules.ps1,
+      # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/RequiredModules.ps1
+    ]
+  })
+}
+
+resource "azurerm_virtual_machine_extension" "powerstig" {
+  count                      = var.powerstig_enabled ? var.rdsh_count : 0
+  name                       = "PowerSTIG"
+  virtual_machine_id         = module.avd_vm[count.index].resource_id
+  publisher                  = "Microsoft.PowerShell"
+  type                       = "DSC"
+  type_handler_version       = "2.83"
+  auto_upgrade_minor_version = true
+
+  settings = jsonencode({
+    wmfVersion = "latest"
+    configuration = {
+      url = azurerm_storage_blob.powerstig_dsc_zip.url
+      # Alternate URL
+      # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/Windows.ps1.zip
+      script   = "Windows.ps1"
+      function = "Windows"
+    }
+  })
+
+  depends_on = [azurerm_virtual_machine_extension.powerstig_prep]
+}
+
 # Availability Set for VMs
 resource "azurerm_availability_set" "avdset" {
   name                         = "avail-${var.org}-avd-sh-${var.env}-${local.reg}-01"
