@@ -51,6 +51,16 @@ variable "rdsh_count" {
   type    = number
 }
 
+variable "encryption_at_host_enabled" {
+  default = false
+  type    = bool
+}
+
+variable "enroll_in_intune" {
+  default = true
+  type    = bool
+}
+
 variable "az_region_abbreviations" {
   type = map(string)
   default = {

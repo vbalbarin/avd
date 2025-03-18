@@ -11,8 +11,11 @@ locals {
     ComputeSubnet                 = "ComputeSubnet"
   }
 
+  // TODO: Rename these to be more descriptive (e.g. vnet_name, vnet_rg_name, snet_name)
   vnet    = length(var.vnet) != 0 ? var.vnet : "vnet-${var.org}-avd-${var.env}-${local.reg}-01"
   vnet_rg = length(var.vnet_rg) != 0 ? var.vnet_rg : "rg-${var.org}-network-${var.env}-${local.reg}-01"
   snet    = length(var.snet) != 0 ? var.snet : "subnet-sessionhost"
+
+  intuneMdmId = "0000000a-0000-0000-c000-000000000000"
 }
 
