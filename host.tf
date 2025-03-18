@@ -1,28 +1,30 @@
 locals {
   vm_name = var.vm_name_prefix
+
+  # Create a VM map to avoid repeating the VM name each time
+  vm_map = {
+    for i in range(var.rdsh_count) : i => {
+      name = "${local.vm_name}${i + 1}"
+    }
+  }
 }
 
 module "avd_vm" {
-  count   = var.rdsh_count
+  for_each = local.vm_map
+
   source  = "Azure/avm-res-compute-virtualmachine/azurerm"
   version = "0.18.1"
 
-  name                = "${local.vm_name}${count.index + 1}"
+  name                = each.value.name
   resource_group_name = module.sessionhost_rg.resource.name
   location            = module.sessionhost_rg.resource.location
   provision_vm_agent  = true
 
-  # Not sure why this condition is here?
-  availability_set_resource_id = var.rdsh_count == 0 ? "" : azurerm_availability_set.avdset.id
+  availability_set_resource_id = azurerm_availability_set.avdset.id
 
-  admin_credential_key_vault_resource_id = module.keyVault.resource_id
-  admin_username                         = var.session_host_admin_username
-  generate_admin_password_or_ssh_key     = true
-
-  generated_secrets_key_vault_secret_config = {
-    key_vault_resource_id = module.keyVault.resource_id
-    name                  = "${local.vm_name}${count.index + 1}-password"
-  }
+  admin_username                     = var.session_host_admin_username
+  admin_password                     = random_password.session_host_local.result
+  generate_admin_password_or_ssh_key = false
 
   enable_telemetry = var.telemetry_enabled
 
@@ -47,7 +49,7 @@ module "avd_vm" {
 
   network_interfaces = {
     "network_interface_1" = {
-      name = "${local.vm_name}${count.index + 1}_nic"
+      name = "${each.value.name}_nic"
       ip_configurations = {
         ipconfig_1 = {
           name                          = "ipconfig_1"
@@ -99,8 +101,9 @@ module "avd_vm" {
       deploy_sequence = 2
     },
     # 3+. FSLogix customization
-    FSLogixConfig = {
-      name = "FSLogixConfiguration"
+    # TODO: Include PowerSTIG prep here (single Custom Script Extension only)
+    CSE = {
+      name = "CustomScript"
       # Use the custom script extension to configure FSLogix
       publisher                  = "Microsoft.Compute"
       type                       = "CustomScriptExtension"
@@ -108,7 +111,10 @@ module "avd_vm" {
       auto_upgrade_minor_version = true
 
       protected_settings = jsonencode({
-        commandToExecute = "powershell -ExecutionPolicy Unrestricted -File Set-FSLogixConfiguration.ps1 -StorageAccountConnectionString DefaultEndpointsProtocol=https;AccountName=${module.storage.resource.name};AccountKey=${module.storage.resource.primary_access_key}"
+        commandToExecute = "powershell -ExecutionPolicy Unrestricted -File Set-FSLogixConfiguration.ps1 -LocalUserAccountName ${var.session_host_admin_username} -StorageAccountConnectionString DefaultEndpointsProtocol=https;AccountName=${module.storage.resource.name};AccountKey=${module.storage.resource.primary_access_key}"
+        managedIdentity = {
+          objectId = module.uami.resource.principal_id
+        }
       })
 
       settings = jsonencode({
@@ -117,63 +123,62 @@ module "avd_vm" {
           # Alternate location
           #"https://gist.githubusercontent.com/SvenAelterman/dcc5a5df64f3dfe6bfa51efd33de45f5/raw/fabc89c14adb44ec36472574b09e1615332089aa/Set-FSLogixConfiguration.ps1"
         ]
-        managedIdentity = {
-          objectId = module.uami.resource.principal_id
-        }
       })
     }
   }
+
+  depends_on = [module.keyVault]
 }
 
 # Add two more custom script extensions to configure PowerSTIG, if needed
-resource "azurerm_virtual_machine_extension" "powerstig_prep" {
-  count                      = var.powerstig_enabled ? var.rdsh_count : 0
-  name                       = "PowerSTIG-Prep"
-  virtual_machine_id         = module.avd_vm[count.index].resource_id
-  publisher                  = "Microsoft.Compute"
-  type                       = "CustomScriptExtension"
-  type_handler_version       = "1.10"
-  auto_upgrade_minor_version = true
+# resource "azurerm_virtual_machine_extension" "powerstig_prep" {
+#   count                      = var.powerstig_enabled ? var.rdsh_count : 0
+#   name                       = "CustomScript"
+#   virtual_machine_id         = module.avd_vm[count.index].resource_id
+#   publisher                  = "Microsoft.Compute"
+#   type                       = "CustomScriptExtension"
+#   type_handler_version       = "1.10"
+#   auto_upgrade_minor_version = true
 
-  protected_settings = jsonencode({
-    commandToExecute = "powershell -ExecutionPolicy Unrestricted -File InstallModules.ps1 -autoInstallDependencies $true"
-  })
+#   protected_settings = jsonencode({
+#     commandToExecute = "powershell -ExecutionPolicy Unrestricted -File InstallModules.ps1 -autoInstallDependencies $true"
+#   })
 
-  settings = jsonencode({
-    fileUris = [
-      azurerm_storage_blob.powerstig_script_RequiredModules.url,
-      azurerm_storage_blob.powerstig_script_GenerateStigChecklist.url,
-      azurerm_storage_blob.powerstig_script_InstallModules.url
-      # Alternate locations (unmodified)
-      # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/GenerateStigChecklist.ps1,
-      # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/InstallModules.ps1,
-      # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/RequiredModules.ps1
-    ]
-  })
-}
+#   settings = jsonencode({
+#     fileUris = [
+#       azurerm_storage_blob.powerstig_script_RequiredModules.url,
+#       azurerm_storage_blob.powerstig_script_GenerateStigChecklist.url,
+#       azurerm_storage_blob.powerstig_script_InstallModules.url
+#       # Alternate locations (unmodified)
+#       # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/GenerateStigChecklist.ps1,
+#       # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/InstallModules.ps1,
+#       # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/RequiredModules.ps1
+#     ]
+#   })
+# }
 
-resource "azurerm_virtual_machine_extension" "powerstig" {
-  count                      = var.powerstig_enabled ? var.rdsh_count : 0
-  name                       = "PowerSTIG"
-  virtual_machine_id         = module.avd_vm[count.index].resource_id
-  publisher                  = "Microsoft.PowerShell"
-  type                       = "DSC"
-  type_handler_version       = "2.83"
-  auto_upgrade_minor_version = true
+# resource "azurerm_virtual_machine_extension" "powerstig" {
+#   count                      = var.powerstig_enabled ? var.rdsh_count : 0
+#   name                       = "PowerSTIG"
+#   virtual_machine_id         = module.avd_vm[count.index].resource_id
+#   publisher                  = "Microsoft.PowerShell"
+#   type                       = "DSC"
+#   type_handler_version       = "2.83"
+#   auto_upgrade_minor_version = true
 
-  settings = jsonencode({
-    wmfVersion = "latest"
-    configuration = {
-      url = azurerm_storage_blob.powerstig_dsc_zip.url
-      # Alternate URL
-      # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/Windows.ps1.zip
-      script   = "Windows.ps1"
-      function = "Windows"
-    }
-  })
+#   settings = jsonencode({
+#     wmfVersion = "latest"
+#     configuration = {
+#       url = azurerm_storage_blob.powerstig_dsc_zip.url
+#       # Alternate URL
+#       # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/Windows.ps1.zip
+#       script   = "Windows.ps1"
+#       function = "Windows"
+#     }
+#   })
 
-  depends_on = [azurerm_virtual_machine_extension.powerstig_prep]
-}
+#   depends_on = [azurerm_virtual_machine_extension.powerstig_prep]
+# }
 
 # Availability Set for VMs
 resource "azurerm_availability_set" "avdset" {

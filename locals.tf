@@ -29,5 +29,7 @@ locals {
     role_definition_id_or_name = "Virtual Machine Administrator Login"
   } }
   sessionHost_rg_all_roles = merge(local.sessionHost_rg_user_roles, local.sessionHost_rg_admin_roles)
+
+  session_host_local_password_secret_name = "${var.vm_name_prefix}password"
 }
 

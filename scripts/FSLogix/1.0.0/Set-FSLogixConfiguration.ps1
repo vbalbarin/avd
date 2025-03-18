@@ -1,7 +1,9 @@
 [CmdletBinding(SupportsShouldProcess = $false)]
 param(
   [Parameter(Mandatory)]
-  [string] $StorageAccountConnectionString
+  [string] $StorageAccountConnectionString,
+  [Parameter()]
+  [string] $LocalUserAccountName = ''
 )
 
 [string]$FSLogixKeyName = 'blobstorage'
@@ -70,3 +72,7 @@ $Redirections = @'
 
 $Redirections | Set-Content "C:\Users\james.sterling\OneDrive - DODEA\Scripts\VDI\Redirections.xml"
 #>
+
+if ($LocalUserAccountName) {
+  Add-LocalGroupMember -Group "FSLogix Profile Exclude List" -Member $LocalUserAccountName
+}
