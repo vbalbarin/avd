@@ -52,8 +52,8 @@ module "virtualnetwork" {
     "PrivateEndpointSubnet" = {
       name                              = "PrivateEndpointSubnet"
       address_prefixes                  = [module.subnet_addrs.network_cidr_blocks["PrivateEndpointSubnet"]]
-      private_endpoint_network_policies = "Enabled"
-      service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault"]
+      //private_endpoint_network_policies = "Enabled"
+      //service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault"]
     }
     "AVDSubnet" = {
       name             = "AVDSubnet"
