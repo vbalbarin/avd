@@ -36,6 +36,11 @@ variable "vnet" {
   type    = string
 }
 
+variable "vnet_address_space" {
+  default = "10.1.0.0/23"
+  type = string
+}
+
 variable "vnet_rg" {
   default = ""
   type    = string
