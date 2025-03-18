@@ -46,14 +46,19 @@ variable "snet" {
   type    = string
 }
 
-variable "vnet_address_space" {
-  default = "10.1.0.0/23"
-  type    = string
-}
-
 variable "rdsh_count" {
   default = 2
   type    = number
+}
+
+variable "encryption_at_host_enabled" {
+  default = false
+  type    = bool
+}
+
+variable "enroll_in_intune" {
+  default = true
+  type    = bool
 }
 
 variable "az_region_abbreviations" {
