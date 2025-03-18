@@ -50,15 +50,15 @@ module "virtualnetwork" {
       address_prefixes = [module.subnet_addrs.network_cidr_blocks["AzureBastionSubnet"]]
     }
     "PrivateEndpointSubnet" = {
-      name                              = "PrivateEndpointSubnet"
-      address_prefixes                  = [module.subnet_addrs.network_cidr_blocks["PrivateEndpointSubnet"]]
-      //private_endpoint_network_policies = "Enabled"
-      //service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault"]
+      name             = "PrivateEndpointSubnet"
+      address_prefixes = [module.subnet_addrs.network_cidr_blocks["PrivateEndpointSubnet"]]
     }
     "AVDSubnet" = {
       name             = "AVDSubnet"
       address_prefixes = [module.subnet_addrs.network_cidr_blocks["AVDSubnet"]]
 
+      //private_endpoint_network_policies = "Enabled"
+      service_endpoints                 = ["Microsoft.Storage", "Microsoft.KeyVault"]
       network_security_group = {
         id = module.avd_subnet_nsg.resource.id
       }
