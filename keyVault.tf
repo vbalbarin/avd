@@ -7,7 +7,8 @@ resource "random_password" "session_host_local" {
 }
 
 module "keyVault" {
-  source = "Azure/avm-res-keyvault-vault/azurerm"
+  source  = "Azure/avm-res-keyvault-vault/azurerm"
+  version = "0.10.0"
 
   name                = "kv-${var.org}-${var.env}-${local.reg}-01"
   location            = azurerm_resource_group.avd_rg.location
