@@ -48,7 +48,7 @@ module "avd_vm" {
   }
 
   network_interfaces = {
-    "network_interface_1" = {
+    network_interface_1 = {
       name = "${each.value.name}_nic"
       ip_configurations = {
         ipconfig_1 = {
