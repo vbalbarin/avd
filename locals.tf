@@ -1,7 +1,7 @@
 locals {
   subscription_id = var.spoke_subscription_id
-  location        = lower(var.location)
-  reg             = var.az_region_abbreviations[var.location]
+  location        = lower(data.azurerm_virtual_network.vnet.location)
+  reg             = var.az_region_abbreviations[local.location]
 
   subnet_names = {
     AzureFirewallSubnet           = "AzureFirewallSubnet"
