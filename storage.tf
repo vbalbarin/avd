@@ -1,6 +1,6 @@
 module "st_naming" {
   source  = "Azure/naming/azurerm"
-  version = "0.4.0"
+  version = "~> 0.4.0"
 
   unique-length = 8
   suffix        = [var.org]
@@ -11,7 +11,8 @@ locals {
   powerstig_container_name = "powerstig-scripts"
 }
 module "storage" {
-  source = "Azure/avm-res-storage-storageaccount/azurerm"
+  source  = "Azure/avm-res-storage-storageaccount/azurerm"
+  version = "~> 0.5.0"
 
   account_replication_type        = "LRS"
   account_tier                    = "Standard"

@@ -13,7 +13,7 @@ module "avd_vm" {
   for_each = local.vm_map
 
   source  = "Azure/avm-res-compute-virtualmachine/azurerm"
-  version = "0.18.1"
+  version = "~> 0.18.1"
 
   name                = each.value.name
   resource_group_name = module.sessionhost_rg.resource.name

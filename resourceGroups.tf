@@ -4,7 +4,8 @@ resource "azurerm_resource_group" "avd_rg" {
 }
 
 module "sessionhost_rg" {
-  source = "Azure/avm-res-resources-resourcegroup/azurerm"
+  source  = "Azure/avm-res-resources-resourcegroup/azurerm"
+  version = "~> 0.2.1"
 
   name     = "rg-${var.org}-avd-sh-${var.env}-${local.reg}-01"
   location = local.location
