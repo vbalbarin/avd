@@ -11,11 +11,6 @@ locals {
     ComputeSubnet                 = "ComputeSubnet"
   }
 
-  // TODO: Rename these to be more descriptive (e.g. vnet_name, vnet_rg_name, snet_name)
-  vnet    = length(var.vnet) != 0 ? var.vnet : "vnet-${var.org}-avd-${var.env}-${local.reg}-01"
-  vnet_rg = length(var.vnet_rg) != 0 ? var.vnet_rg : "rg-${var.org}-network-${var.env}-${local.reg}-01"
-  snet    = length(var.snet) != 0 ? var.snet : "subnet-sessionhost"
-
   intuneMdmId = "0000000a-0000-0000-c000-000000000000"
 
   all_identities = concat(var.user_assignments, var.admin_assignments)
@@ -31,5 +26,7 @@ locals {
   sessionHost_rg_all_roles = merge(local.sessionHost_rg_user_roles, local.sessionHost_rg_admin_roles)
 
   session_host_local_password_secret_name = "${var.vm_name_prefix}password"
+
+  instance_formatted = format("%02d", var.instance)
 }
 
