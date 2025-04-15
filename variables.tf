@@ -57,7 +57,7 @@ variable "rdsh_count" {
 }
 
 variable "FSLogixScriptVersion" {
-  default     = "1.0.0"
+  default     = "1.1.0"
   type        = string
   description = "The version folder name of the FSLogix script to be used."
 }
@@ -82,6 +82,7 @@ locals {
 variable "vm_name_prefix" {
   default = "vm-avd-sh-"
   type    = string
+
   validation {
     condition     = length(var.vm_name_prefix) <= local.vm_name_prefix_max_length
     error_message = "The VM name prefix must be ${local.vm_name_prefix_max_length} characters or less."

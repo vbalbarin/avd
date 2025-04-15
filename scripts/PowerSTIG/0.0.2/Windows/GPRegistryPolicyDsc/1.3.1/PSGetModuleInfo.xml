@@ -1,0 +1,135 @@
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>Microsoft.PowerShell.Commands.PSRepositoryItemInfo</T>
+      <T>System.Management.Automation.PSCustomObject</T>
+      <T>System.Object</T>
+    </TN>
+    <MS>
+      <S N="Name">GPRegistryPolicyDsc</S>
+      <Version N="Version">1.3.1</Version>
+      <S N="Type">Module</S>
+      <S N="Description">This resource module contains DSC resources used to apply and manage local group policies by modifying the respective .pol file.</S>
+      <S N="Author">DSC Community</S>
+      <S N="CompanyName">dsccommunity</S>
+      <S N="Copyright">Copyright the DSC Community contributors. All rights reserved.</S>
+      <DT N="PublishedDate">2023-11-03T14:32:21-05:00</DT>
+      <Obj N="InstalledDate" RefId="1">
+        <DT>2025-04-14T15:16:38.0092737-05:00</DT>
+        <MS>
+          <Obj N="DisplayHint" RefId="2">
+            <TN RefId="1">
+              <T>Microsoft.PowerShell.Commands.DisplayHintType</T>
+              <T>System.Enum</T>
+              <T>System.ValueType</T>
+              <T>System.Object</T>
+            </TN>
+            <ToString>DateTime</ToString>
+            <I32>2</I32>
+          </Obj>
+        </MS>
+      </Obj>
+      <Nil N="UpdatedDate" />
+      <URI N="LicenseUri">https://github.com/dsccommunity/GPRegistryPolicyDsc/blob/master/LICENSE</URI>
+      <URI N="ProjectUri">https://github.com/dsccommunity/GPRegistryPolicyDsc</URI>
+      <URI N="IconUri">https://dsccommunity.org/images/DSC_Logo_300p.png</URI>
+      <Obj N="Tags" RefId="3">
+        <TN RefId="2">
+          <T>System.Object[]</T>
+          <T>System.Array</T>
+          <T>System.Object</T>
+        </TN>
+        <LST>
+          <S>DesiredStateConfiguration</S>
+          <S>DSC</S>
+          <S>DSCResourceKit</S>
+          <S>DSCResource</S>
+          <S>PSModule</S>
+        </LST>
+      </Obj>
+      <Obj N="Includes" RefId="4">
+        <TN RefId="3">
+          <T>System.Collections.Hashtable</T>
+          <T>System.Object</T>
+        </TN>
+        <DCT>
+          <En>
+            <S N="Key">DscResource</S>
+            <Obj N="Value" RefId="5">
+              <TNRef RefId="2" />
+              <LST>
+                <S>RefreshRegistryPolicy</S>
+                <S>RegistryPolicyFile</S>
+              </LST>
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Command</S>
+            <Obj N="Value" RefId="6">
+              <TNRef RefId="2" />
+              <LST />
+            </Obj>
+          </En>
+          <En>
+            <S N="Key">Workflow</S>
+            <Ref N="Value" RefId="6" />
+          </En>
+          <En>
+            <S N="Key">Function</S>
+            <Ref N="Value" RefId="6" />
+          </En>
+          <En>
+            <S N="Key">RoleCapability</S>
+            <Ref N="Value" RefId="6" />
+          </En>
+          <En>
+            <S N="Key">Cmdlet</S>
+            <Ref N="Value" RefId="6" />
+          </En>
+        </DCT>
+      </Obj>
+      <Nil N="PowerShellGetFormatVersion" />
+      <S N="ReleaseNotes">## [1.3.1] - 2023-11-03_x000D__x000A__x000D__x000A_### Changes_x000D__x000A__x000D__x000A_- GPRegistryPolicyDsc_x000D__x000A_  - Updated to latest pipeline files._x000D__x000A__x000D__x000A_### Fixed_x000D__x000A__x000D__x000A_- GPRegistryPolicyDsc_x000D__x000A_  - Fixed REG_MULTI_SZ double null termination issue ([issue #25](https://github.com/dsccommunity/GPRegistryPolicyDsc/issues/25))._x000D__x000A_  - Fixed the GitHub repository wiki home page.</S>
+      <Obj N="Dependencies" RefId="7">
+        <TNRef RefId="2" />
+        <LST />
+      </Obj>
+      <S N="RepositorySourceLocation">https://www.powershellgallery.com/api/v2</S>
+      <S N="Repository">PSGallery</S>
+      <S N="PackageManagementProvider">NuGet</S>
+      <Obj N="AdditionalMetadata" RefId="8">
+        <TN RefId="4">
+          <T>System.Management.Automation.PSCustomObject</T>
+          <T>System.Object</T>
+        </TN>
+        <MS>
+          <S N="copyright">Copyright the DSC Community contributors. All rights reserved.</S>
+          <S N="description">This resource module contains DSC resources used to apply and manage local group policies by modifying the respective .pol file.</S>
+          <S N="requireLicenseAcceptance">False</S>
+          <S N="releaseNotes">## [1.3.1] - 2023-11-03_x000D__x000A__x000D__x000A_### Changes_x000D__x000A__x000D__x000A_- GPRegistryPolicyDsc_x000D__x000A_  - Updated to latest pipeline files._x000D__x000A__x000D__x000A_### Fixed_x000D__x000A__x000D__x000A_- GPRegistryPolicyDsc_x000D__x000A_  - Fixed REG_MULTI_SZ double null termination issue ([issue #25](https://github.com/dsccommunity/GPRegistryPolicyDsc/issues/25))._x000D__x000A_  - Fixed the GitHub repository wiki home page.</S>
+          <S N="isLatestVersion">True</S>
+          <S N="isAbsoluteLatestVersion">False</S>
+          <S N="versionDownloadCount">134610</S>
+          <S N="downloadCount">2529081</S>
+          <S N="packageSize">24316</S>
+          <S N="published">11/3/2023 2:32:21 PM -05:00</S>
+          <S N="created">11/3/2023 2:32:21 PM -05:00</S>
+          <S N="lastUpdated">4/14/2025 7:50:00 PM -05:00</S>
+          <S N="tags">DesiredStateConfiguration DSC DSCResourceKit DSCResource PSModule PSDscResource_RefreshRegistryPolicy PSDscResource_RegistryPolicyFile PSIncludes_DscResource</S>
+          <S N="developmentDependency">False</S>
+          <S N="updated">2025-04-14T19:50:00Z</S>
+          <S N="NormalizedVersion">1.3.1</S>
+          <S N="Authors">DSC Community</S>
+          <S N="IsPrerelease">false</S>
+          <S N="ItemType">Module</S>
+          <S N="FileList">GPRegistryPolicyDsc.nuspec|DSCResources\MSFT_RefreshRegistryPolicy\MSFT_RefreshRegistryPolicy.schema.mof|GPRegistryPolicyDsc.psd1|DSCResources\MSFT_RegistryPolicyFile\MSFT_RegistryPolicyFile.schema.mof|en-US\about_GPRegistryPolicyDsc.help.txt|DSCResources\MSFT_RegistryPolicyFile\MSFT_RegistryPolicyFile.psm1|Modules\GPRegistryPolicyDsc.Common\GPRegistryPolicyDsc.Common.psd1|Modules\GPRegistryPolicyDsc.Common\en-US\GPRegistryPolicyDsc.Common.strings.psd1|Modules\GPRegistryPolicyDsc.Common\GPRegistryPolicyDsc.Common.psm1|Modules\GPRegistryPolicyFileParser\en-US\GPRegistryPolicyFileParser.strings.psd1|Modules\GPRegistryPolicyFileParser\GPRegistryPolicyFileParser.psd1|DSCResources\MSFT_RefreshRegistryPolicy\en-US\MSFT_RefreshRegistryPolicy.strings.psd1|Modules\GPRegistryPolicyFileParser\GPRegistryPolicyFileParser.psm1|DSCResources\MSFT_RegistryPolicyFile\en-US\MSFT_RegistryPolicyFile.strings.psd1|DSCResources\MSFT_RefreshRegistryPolicy\MSFT_RefreshRegistryPolicy.psm1</S>
+          <S N="GUID">fcded2c6-6ba2-4d6c-a35e-55848f90462b</S>
+          <S N="PowerShellVersion">5.0</S>
+          <S N="CLRVersion">4.0</S>
+          <S N="CompanyName">DSC Community</S>
+        </MS>
+      </Obj>
+      <S N="InstalledLocation">C:\Users\svaelter\OneDrive - Microsoft\Documents\PowerShell\Modules\GPRegistryPolicyDsc\1.3.1</S>
+    </MS>
+  </Obj>
+</Objs>

@@ -43,7 +43,7 @@ module "avd_vm" {
   managed_identities = {
     # Required for Entra join
     system_assigned = true
-    # For script download from blob
+    # For script download from blob for the custom script and DSC extensions
     user_assigned_resource_ids = [module.uami.resource.id]
   }
 
@@ -77,7 +77,7 @@ module "avd_vm" {
 
       deploy_sequence = 1
     },
-    # 2. Install the AVD agent, join to host pool
+    # 3+. Install the AVD agent, join to host pool
     AVD = {
       name                       = "SessionHostConfiguration"
       publisher                  = "Microsoft.PowerShell"
@@ -97,13 +97,10 @@ module "avd_vm" {
           HostPoolName = module.hostpool.resource.name
         }
       })
-
-      deploy_sequence = 2
     },
-    # 3+. FSLogix customization
-    # TODO: Include PowerSTIG prep here (single Custom Script Extension only)
+    # 2. FSLogix customization and PowerSTIG prep scripts (executed via a wrapper script)
     CSE = {
-      name = "CustomScript"
+      name = "WrapperCustomScript"
       # Use the custom script extension to configure FSLogix
       publisher                  = "Microsoft.Compute"
       type                       = "CustomScriptExtension"
@@ -111,7 +108,7 @@ module "avd_vm" {
       auto_upgrade_minor_version = true
 
       protected_settings = jsonencode({
-        commandToExecute = "powershell -ExecutionPolicy Unrestricted -File Set-FSLogixConfiguration.ps1 -LocalUserAccountName ${var.session_host_admin_username} -StorageAccountConnectionString DefaultEndpointsProtocol=https;AccountName=${module.storage.resource.name};AccountKey=${module.storage.resource.primary_access_key}"
+        commandToExecute = "powershell -ExecutionPolicy Unrestricted -File Invoke-Wrapper.ps1 -ExcludeLocalUserAccountName ${var.session_host_admin_username} -StorageAccountConnectionString DefaultEndpointsProtocol=https;AccountName=${module.storage.resource.name};AccountKey=${module.storage.resource.primary_access_key}"
         managedIdentity = {
           objectId = module.uami.resource.principal_id
         }
@@ -119,43 +116,20 @@ module "avd_vm" {
 
       settings = jsonencode({
         fileUris = [
-          azurerm_storage_blob.fslogix_script.url
-          # Alternate location
-          #"https://gist.githubusercontent.com/SvenAelterman/dcc5a5df64f3dfe6bfa51efd33de45f5/raw/fabc89c14adb44ec36472574b09e1615332089aa/Set-FSLogixConfiguration.ps1"
+          azurerm_storage_blob.fslogix_script.url,
+          azurerm_storage_blob.powerstig_script_RequiredModules.url,
+          azurerm_storage_blob.powerstig_script_GenerateStigChecklist.url,
+          azurerm_storage_blob.powerstig_script_InstallModules.url,
+          azurerm_storage_blob.wrapper_script.url
         ]
       })
+
+      deploy_sequence = 2
     }
   }
 
   depends_on = [module.keyVault]
 }
-
-# Add two more custom script extensions to configure PowerSTIG, if needed
-# resource "azurerm_virtual_machine_extension" "powerstig_prep" {
-#   count                      = var.powerstig_enabled ? var.rdsh_count : 0
-#   name                       = "CustomScript"
-#   virtual_machine_id         = module.avd_vm[count.index].resource_id
-#   publisher                  = "Microsoft.Compute"
-#   type                       = "CustomScriptExtension"
-#   type_handler_version       = "1.10"
-#   auto_upgrade_minor_version = true
-
-#   protected_settings = jsonencode({
-#     commandToExecute = "powershell -ExecutionPolicy Unrestricted -File InstallModules.ps1 -autoInstallDependencies $true"
-#   })
-
-#   settings = jsonencode({
-#     fileUris = [
-#       azurerm_storage_blob.powerstig_script_RequiredModules.url,
-#       azurerm_storage_blob.powerstig_script_GenerateStigChecklist.url,
-#       azurerm_storage_blob.powerstig_script_InstallModules.url
-#       # Alternate locations (unmodified)
-#       # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/GenerateStigChecklist.ps1,
-#       # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/InstallModules.ps1,
-#       # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/RequiredModules.ps1
-#     ]
-#   })
-# }
 
 # resource "azurerm_virtual_machine_extension" "powerstig" {
 #   count                      = var.powerstig_enabled ? var.rdsh_count : 0
@@ -170,8 +144,6 @@ module "avd_vm" {
 #     wmfVersion = "latest"
 #     configuration = {
 #       url = azurerm_storage_blob.powerstig_dsc_zip.url
-#       # Alternate URL
-#       # https://raw.githubusercontent.com/Azure/ato-toolkit/refs/heads/master/stig/windows/Windows.ps1.zip
 #       script   = "Windows.ps1"
 #       function = "Windows"
 #     }

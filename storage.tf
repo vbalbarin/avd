@@ -10,6 +10,7 @@ locals {
   container_name           = "fslogix-script"
   powerstig_container_name = "powerstig-scripts"
 }
+
 module "storage" {
   source  = "Azure/avm-res-storage-storageaccount/azurerm"
   version = "~> 0.5.0"
@@ -54,7 +55,7 @@ module "storage" {
     FSLogixScript = {
       name = local.container_name
     }
-    PowerSTIGSCript = {
+    PowerSTIGScript = {
       name = local.powerstig_container_name
     }
   }
@@ -68,36 +69,44 @@ resource "azurerm_storage_blob" "fslogix_script" {
   storage_account_name   = module.storage.name
   storage_container_name = local.container_name
   type                   = "Block"
-  source                 = "scripts/FSLogix/1.0.0/Set-FSLogixConfiguration.ps1"
+  source                 = "scripts/FSLogix/${var.FSLogixScriptVersion}/Set-FSLogixConfiguration.ps1"
   content_type           = "application/x-powershell"
+
+  depends_on = [module.storage]
 }
 
 # Upload the PowerSTIG scripts to the blob container
 resource "azurerm_storage_blob" "powerstig_script_RequiredModules" {
-  name                   = "RequiredModules.ps1"
+  name                   = "Get-PowerStigRequiredModules.ps1"
   storage_account_name   = module.storage.name
   storage_container_name = local.powerstig_container_name
   type                   = "Block"
-  source                 = "scripts/PowerSTIG/0.0.1/RequiredModules.ps1"
+  source                 = "scripts/PowerSTIG/${var.PowerSTIGScriptVersion}/Get-PowerStigRequiredModules.ps1"
   content_type           = "application/x-powershell"
+
+  depends_on = [module.storage]
 }
 
 resource "azurerm_storage_blob" "powerstig_script_GenerateStigChecklist" {
-  name                   = "GenerateStigChecklist.ps1"
+  name                   = "Generate-StigChecklist.ps1"
   storage_account_name   = module.storage.name
   storage_container_name = local.powerstig_container_name
   type                   = "Block"
-  source                 = "scripts/PowerSTIG/0.0.1/GenerateStigChecklist.ps1"
+  source                 = "scripts/PowerSTIG/${var.PowerSTIGScriptVersion}/Generate-StigChecklist.ps1"
   content_type           = "application/x-powershell"
+
+  depends_on = [module.storage]
 }
 
 resource "azurerm_storage_blob" "powerstig_script_InstallModules" {
-  name                   = "InstallModules.ps1"
+  name                   = "Install-PowerStigModules.ps1"
   storage_account_name   = module.storage.name
   storage_container_name = local.powerstig_container_name
   type                   = "Block"
-  source                 = "scripts/PowerSTIG/0.0.1/InstallModules.ps1"
+  source                 = "scripts/PowerSTIG/${var.PowerSTIGScriptVersion}/Install-PowerStigModules.ps1"
   content_type           = "application/x-powershell"
+
+  depends_on = [module.storage]
 }
 
 resource "azurerm_storage_blob" "powerstig_dsc_zip" {
@@ -105,6 +114,19 @@ resource "azurerm_storage_blob" "powerstig_dsc_zip" {
   storage_account_name   = module.storage.name
   storage_container_name = local.powerstig_container_name
   type                   = "Block"
-  source                 = "scripts/PowerSTIG/0.0.1/Windows.ps1.zip"
+  source                 = data.archive_file.powerSTIG_dsc_archive.output_path
   content_type           = "application/x-zip-compressed"
+
+  depends_on = [module.storage]
+}
+
+resource "azurerm_storage_blob" "wrapper_script" {
+  name                   = "Invoke-Wrapper.ps1"
+  storage_account_name   = module.storage.name
+  storage_container_name = local.powerstig_container_name
+  type                   = "Block"
+  source                 = "scripts/CSEWrapper/${var.wrapper_script_version}/Invoke-Wrapper.ps1"
+  content_type           = "application/x-powershell"
+
+  depends_on = [module.storage]
 }
