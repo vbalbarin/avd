@@ -22,6 +22,11 @@ variable "unit" {
   type    = string
 }
 
+variable "instance" {
+  default = 1
+  type    = number
+}
+
 variable "env" {
   default = "demo"
   type    = string
@@ -51,9 +56,27 @@ variable "rdsh_count" {
   type    = number
 }
 
+variable "FSLogixScriptVersion" {
+  default     = "1.0.0"
+  type        = string
+  description = "The version folder name of the FSLogix script to be used."
+}
+
+variable "PowerSTIGScriptVersion" {
+  default     = "0.0.2"
+  type        = string
+  description = "The version folder name of the PowerSTIG scripts to be used."
+}
+
+variable "wrapper_script_version" {
+  default     = "1.0.0"
+  type        = string
+  description = "The version folder name of the wrapper PowerShell script to be used for the custom script extension."
+}
+
 locals {
-  # AVD restriction is 11 characters, but ours could be longer
-  vm_name_prefix_max_length = 11
+  # AVD restriction is 11 characters, but ours can be longer
+  vm_name_prefix_max_length = 13
 }
 
 variable "vm_name_prefix" {
@@ -81,7 +104,7 @@ variable "session_host_source_image_reference" {
 }
 
 variable "session_host_sku_size" {
-  default = "Standard_D2as_v5"
+  default = "Standard_D4as_v5"
   type    = string
 }
 
