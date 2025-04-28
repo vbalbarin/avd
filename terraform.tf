@@ -18,11 +18,15 @@ terraform {
     time = {
       source = "hashicorp/time"
     }
+    archive = {
+      source = "hashicorp/archive"
+    }
   }
 }
 
 provider "azurerm" {
   subscription_id = var.spoke_subscription_id
+
   features {
     key_vault {
       purge_soft_deleted_secrets_on_destroy      = false

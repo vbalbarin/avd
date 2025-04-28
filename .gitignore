@@ -5,3 +5,5 @@
 
 *.tfplan*
 *.tfvars
+
+Windows.ps1.zip

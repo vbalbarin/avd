@@ -1,5 +1,6 @@
 module "hostpool" {
-  source = "Azure/avm-res-desktopvirtualization-hostpool/azurerm"
+  source  = "Azure/avm-res-desktopvirtualization-hostpool/azurerm"
+  version = "~> 0.3.0"
 
   enable_telemetry = var.telemetry_enabled
 
@@ -25,7 +26,8 @@ module "hostpool" {
 }
 
 module "appgroup" {
-  source = "Azure/avm-res-desktopvirtualization-applicationgroup/azurerm"
+  source  = "Azure/avm-res-desktopvirtualization-applicationgroup/azurerm"
+  version = "~> 0.2.0"
 
   enable_telemetry = var.telemetry_enabled
 
@@ -46,7 +48,9 @@ module "appgroup" {
 }
 
 module "workspace" {
-  source           = "Azure/avm-res-desktopvirtualization-workspace/azurerm"
+  source  = "Azure/avm-res-desktopvirtualization-workspace/azurerm"
+  version = "~> 0.2.0"
+
   enable_telemetry = var.telemetry_enabled
 
   resource_group_name                           = azurerm_resource_group.avd_rg.name

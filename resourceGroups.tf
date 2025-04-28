@@ -1,13 +1,14 @@
 resource "azurerm_resource_group" "avd_rg" {
   name     = "rg-${var.org}-avd-${var.env}-${local.reg}-01"
-  location = var.location
+  location = local.location
 }
 
 module "sessionhost_rg" {
-  source = "Azure/avm-res-resources-resourcegroup/azurerm"
+  source  = "Azure/avm-res-resources-resourcegroup/azurerm"
+  version = "~> 0.2.1"
 
   name     = "rg-${var.org}-avd-sh-${var.env}-${local.reg}-01"
-  location = var.location
+  location = local.location
 
   enable_telemetry = var.telemetry_enabled
 

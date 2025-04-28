@@ -1,7 +1,7 @@
 locals {
   subscription_id = var.spoke_subscription_id
-  location        = lower(var.location)
-  reg             = var.az_region_abbreviations[var.location]
+  location        = lower(data.azurerm_virtual_network.vnet.location)
+  reg             = var.az_region_abbreviations[local.location]
 
   subnet_names = {
     AzureFirewallSubnet           = "AzureFirewallSubnet"
@@ -10,11 +10,6 @@ locals {
     DomainControllerSubnet        = "DomainControllerSubnet"
     ComputeSubnet                 = "ComputeSubnet"
   }
-
-  // TODO: Rename these to be more descriptive (e.g. vnet_name, vnet_rg_name, snet_name)
-  vnet    = length(var.vnet) != 0 ? var.vnet : "vnet-${var.org}-avd-${var.env}-${local.reg}-01"
-  vnet_rg = length(var.vnet_rg) != 0 ? var.vnet_rg : "rg-${var.org}-network-${var.env}-${local.reg}-01"
-  snet    = length(var.snet) != 0 ? var.snet : "subnet-sessionhost"
 
   intuneMdmId = "0000000a-0000-0000-c000-000000000000"
 
@@ -31,5 +26,7 @@ locals {
   sessionHost_rg_all_roles = merge(local.sessionHost_rg_user_roles, local.sessionHost_rg_admin_roles)
 
   session_host_local_password_secret_name = "${var.vm_name_prefix}password"
+
+  instance_formatted = format("%02d", var.instance)
 }
 
