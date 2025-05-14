@@ -37,6 +37,12 @@ variable "vnet_address_space" {
   type    = string
 }
 
+variable "deploy_natgw" {
+  default = false
+  type = bool
+}
+
+
 variable "az_region_abbreviations" {
   type = map(string)
   default = {
